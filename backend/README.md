@@ -56,15 +56,15 @@ Reglas principales:
 - **Identificadores:** UUID v7 generados en negocio.
 - **Equipos:** el código se guarda en mayúsculas. El tipo se normaliza al catálogo del frontend (`Laptop`, `Monitor`, `Periférico`, `Tablet`) sin distinguir mayúsculas ni tildes; un tipo fuera del catálogo es un error de validación.
 - **Préstamos:**
-  - Estados guardados: `Activo` → `Devuelto`. `Por vencer` (0 a 3 días) y `Atrasado` se calculan con la fecha de hoy en `America/Santo_Domingo`.
+  - Estados guardados: `active` → `returned`. `due_soon` (0 a 3 días) y `overdue` se calculan con la fecha de hoy en `America/Santo_Domingo`.
   - Crear un préstamo y devolverlo son transacciones. Al crear se bloquea la fila del equipo (`findByIdForUpdate`) y se verifica que no tenga otro préstamo activo.
 - **Sesiones:**
   - Token aleatorio de 256 bits; en la base de datos solo se guarda su hash SHA-256.
   - El login invalida la sesión previa del navegador (regeneración del id).
   - Contraseñas con scrypt (parámetros de OWASP). Mismo error y mismo costo para correo inexistente, contraseña incorrecta o cuenta no activa.
 - **Cuentas:**
-  - Invitar crea una cuenta `Invitado` sin contraseña.
-  - Desactivar es una baja lógica: la cuenta pasa a `Inactivo`, su empleado se desactiva y sus sesiones se cierran. Sus préstamos activos se conservan (se devuelven con CU-04) y ya no puede recibir préstamos nuevos. No se puede desactivar la propia cuenta.
+  - Invitar crea una cuenta `invited` sin contraseña.
+  - Desactivar es una baja lógica: la cuenta pasa a `inactive`, su empleado se desactiva y sus sesiones se cierran. Sus préstamos activos se conservan (se devuelven con CU-04) y ya no puede recibir préstamos nuevos. No se puede desactivar la propia cuenta.
 
 ### Decisiones abiertas del issue #5 y valor tomado
 
@@ -72,8 +72,8 @@ Reglas principales:
 | --- | --- | --- |
 | Duración de la sesión | 30 min de inactividad, tope de 12 h | `DEFAULT_SESSION_POLICY` o `sessionPolicy` en `createUseCases` |
 | ¿Todo empleado tiene cuenta? | No. Una cuenta puede no tener empleado y viceversa | — |
-| ¿El Empleado solo ve sus préstamos? | Sí, como el frontend | `loanScope` en `use-cases/loans.ts` |
-| ¿Estado "Vencido"? | No. Se usa `Atrasado`, derivado, como el frontend | `rules/loans.ts` |
+| ¿El Empleado solo ve sus préstamos? | Sí, como el frontend | `loanScope` en `use-cases/loans.use-case.ts` |
+| ¿Estado "Vencido"? | No. Se usa `overdue`, derivado, como el frontend | `rules/loans.rules.ts` |
 | Recuperación de contraseña | Solo avisa por `AccountNotifier`. Falta definir el proveedor de correo y dónde guardar el token de recuperación | — |
 
 ### Tests
